@@ -3,6 +3,12 @@
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
+declare global {
+  interface Window {
+    fbq?: (...args: any[]) => void
+  }
+}
+
 function CheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -35,6 +41,14 @@ function CheckoutContent() {
       const data = await res.json()
 
       if (res.ok && data.orderId) {
+        if (typeof window !== 'undefined' && window.fbq) {
+          window.fbq('track', 'InitiateCheckout', {
+            value: 390,
+            currency: 'THB',
+            content_name: 'Passive Income Starter Set',
+          })
+        }
+
         router.push(`/payment/${data.orderId}`)
         return
       }
@@ -59,7 +73,8 @@ function CheckoutContent() {
             <h1 className="h2">ข้อมูลสำหรับรับสิทธิ์</h1>
 
             <p className="muted">
-              กรอกข้อมูลให้ถูกต้อง โดยเฉพาะอีเมล เพราะระบบจะใช้ส่งลิงก์เข้าใช้งาน
+              กรอกข้อมูลให้ถูกต้อง โดยเฉพาะอีเมล
+              เพราะระบบจะใช้ส่งลิงก์เข้าใช้งาน
             </p>
 
             <div className="field">
